@@ -1,4 +1,5 @@
-name: Video Editor
+
+name: Build
 
 on:
   push:
@@ -11,25 +12,37 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.9' # Pastikan versi ini sesuai dengan yang Anda gunakan secara lokal jika memungkinkan
         
     - name: Install dependencies
+      shell: bash # Menggunakan bash untuk opsi set -e yang lebih baik
       run: |
+        set -e # Perintah ini akan membuat skrip berhenti jika ada error
         python -m pip install --upgrade pip
+        echo "--- Checking for requirements.txt ---"
+        ls -l
+        echo "--- Contents of requirements.txt ---"
+        cat requirements.txt || echo "requirements.txt not found"
+        echo "--- Attempting to install from requirements.txt ---"
         pip install -r requirements.txt
+        echo "--- Installing PyInstaller ---"
         pip install pyinstaller
+        echo "--- Installed packages: ---"
+        pip list
+        echo "---------------------------"
         
-    - name: Create executable
+    - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --icon=static/movie.ico moviecap_desktop.py
+        pyinstaller --onefile --windowed --icon=movie.ico moviecap_desktop.py
         
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: video-editor
+        name: Moviecap Web
         path: dist/moviecap_desktop.exe
